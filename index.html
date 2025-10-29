@@ -1,341 +1,251 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>API Docs - Hoola LMS (Demo)</title>
-    <style>
-        :root {
-            --bg: #f6f8fa;
-            --accent: #1f6feb;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hoola API Docs (Swagger UI)</title>
 
-        html,
-        body {
-            height: 100dvh;
-            margin: 0;
-            font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
-            background: var(--bg);
-        }
+  <!-- Swagger UI -->
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
 
-        .topbar {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 20px;
-            background: white;
-            box-shadow: 0 1px 0 rgba(16, 24, 40, 0.04);
-            position: sticky;
-            top: 0;
-            z-index: 20;
-        }
+  <style>
+    :root {
+      --accent: #1f6feb;
+      --bg: #f6f8fa;
+    }
 
-        .logo {
-            font-weight: 700;
-            color: var(--accent);
-            font-size: 18px;
-            letter-spacing: -0.2px;
-        }
+    body {
+      margin: 0;
+      font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI";
+      background: var(--bg);
+    }
 
-        .meta {
-            margin-left: 8px;
-            color: #4b5563;
-            font-size: 13px;
-        }
+    .topbar {
+      background: #fff;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .actions {
-            margin-left: auto;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+    .logo {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 18px;
+    }
 
-        .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-        }
+    .meta {
+      margin-left: 10px;
+      color: #6b7280;
+      font-size: 14px;
+    }
 
-        .btn--ghost {
-            background: transparent;
-            color: #374151;
-            border: 1px solid rgba(15, 23, 42, 0.06);
-        }
+    .actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
 
-        /* container for Redoc */
-        #redoc-container {
-            height: calc(100dvh - 64px);
-            overflow: auto;
-        }
+    button {
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-        /* small responsive */
-        @media (max-width:600px) {
-            .meta {
-                display: none;
-            }
+    button:hover {
+      opacity: 0.9;
+    }
 
-            .logo {
-                font-size: 16px;
-            }
-        }
-    </style>
+    button.ghost {
+      background: transparent;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    #swagger-ui {
+      max-width: 1300px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+      border-radius: 12px;
+      margin-top: 20px;
+      padding: 20px;
+    }
+
+    .swagger-ui .topbar { display: none !important; } /* Ẩn topbar mặc định của Swagger */
+  </style>
 </head>
 
 <body>
-    <div class="topbar" role="banner">
-        <div style="display:flex; align-items:center;">
-            <div class="logo">Hoola API (Demo)</div>
-            <div class="meta">LMS — Courses / Chapters / Lessons / Auth</div>
-        </div>
-
-        <div class="actions">
-            <button class="btn" id="downloadSpec">Tải openapi.json</button>
-            <button class="btn btn--ghost" id="copyCurl">Copy cURL mẫu</button>
-        </div>
+  <div class="topbar">
+    <div style="display:flex; align-items:center;">
+      <div class="logo">Hoola API</div>
+      <div class="meta">LMS — Courses / Users / Auth</div>
     </div>
 
-    <!-- nơi Redoc render -->
-    <div id="redoc-container">
-        <div id="redoc"></div>
+    <div class="actions">
+      <button id="downloadSpec">Tải openapi.json</button>
+      <button class="ghost" id="copyCurl">Copy cURL mẫu</button>
     </div>
+  </div>
 
-    <!-- OpenAPI spec (inline JSON) -->
-    <script id="openapi-spec" type="application/json">
-{
-  "openapi": "3.0.3",
-  "info": {
-    "title": "Hoola LMS API (Demo)",
-    "version": "1.0.0",
-    "description": "Mẫu tài liệu OpenAPI cho hệ thống LMS: courses, chapters, lessons, auth, users."
-  },
-  "servers": [
-    { "url": "https://api.your-domain.com", "description": "Production" },
-    { "url": "http://localhost:3000", "description": "Local (dev)" }
-  ],
-  "paths": {
-    "/api/auth/login": {
-      "post": {
-        "summary": "Đăng nhập",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+
+  <script>
+    const spec = {
+      openapi: "3.0.3",
+      info: {
+        title: "Hoola LMS API (Demo)",
+        version: "1.0.0",
+        description: "API mô phỏng hệ thống LMS bao gồm Courses, Chapters, Lessons, Auth, Users."
+      },
+      servers: [
+        { url: "https://api.your-domain.com", description: "Production" },
+        { url: "http://localhost:3000", description: "Local (dev)" }
+      ],
+      paths: {
+        "/api/auth/login": {
+          post: {
+            summary: "Đăng nhập",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      email: { type: "string", example: "user@example.com" },
+                      password: { type: "string", example: "secret" }
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              200: {
+                description: "Trả về accessToken và refreshToken",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        accessToken: { type: "string" },
+                        refreshToken: { type: "string" }
+                      }
+                    }
+                  }
+                }
+              },
+              401: { description: "Sai thông tin đăng nhập" }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Token trả về khi đăng nhập thành công",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/AuthResponse" }
-              }
-            }
-          },
-          "401": { "description": "Sai thông tin đăng nhập" }
-        }
-      }
-    },
-    "/api/users": {
-      "get": {
-        "summary": "Danh sách người dùng",
-        "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Danh sách users",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type":"object",
-                  "properties": {
-                    "total": { "type": "integer" },
-                    "items": {
-                      "type":"array",
-                      "items": { "$ref": "#/components/schemas/User" }
+        "/api/users": {
+          get: {
+            summary: "Danh sách người dùng",
+            parameters: [
+              { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+              { name: "limit", in: "query", schema: { type: "integer", default: 20 } }
+            ],
+            responses: {
+              200: {
+                description: "Danh sách users",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        total: { type: "integer" },
+                        items: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              id: { type: "string" },
+                              name: { type: "string" },
+                              email: { type: "string" }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/api/courses": {
-      "get": {
-        "summary": "Lấy danh sách khoá học",
-        "responses": {
-          "200": {
-            "description": "Danh sách courses",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type":"array",
-                  "items": { "$ref": "#/components/schemas/Course" }
+        },
+        "/api/courses": {
+          get: {
+            summary: "Lấy danh sách khoá học",
+            responses: { 200: { description: "Danh sách khoá học" } }
+          },
+          post: {
+            summary: "Tạo khoá học mới",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string", example: "Khóa học React cơ bản" },
+                      description: { type: "string" },
+                      price: { type: "number" }
+                    }
+                  }
                 }
               }
-            }
+            },
+            responses: { 201: { description: "Tạo thành công" } }
           }
         }
-      },
-      "post": {
-        "summary": "Tạo khoá học mới",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CourseCreate" } } }
-        },
-        "responses": {
-          "201": { "description": "Khoá học được tạo", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Course" } } } }
-        }
       }
-    },
-    "/api/courses/{courseId}/chapters": {
-      "get": {
-        "summary": "Lấy chương theo khoá",
-        "parameters": [
-          { "name": "courseId", "in": "path", "required": true, "schema": { "type":"string" } }
-        ],
-        "responses": {
-          "200": { "description": "Danh sách chương", "content": { "application/json": { "schema": { "type":"array", "items": { "$ref":"#/components/schemas/Chapter" } } } } }
-        }
+    };
+
+    SwaggerUIBundle({
+      spec,
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      layout: "BaseLayout",
+      docExpansion: "none",
+      tryItOutEnabled: true,
+    });
+
+    // Nút tải JSON
+    document.getElementById('downloadSpec').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(spec, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'openapi.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Nút copy cURL mẫu
+    document.getElementById('copyCurl').addEventListener('click', async () => {
+      const curl = `curl -X POST "https://api.your-domain.com/api/auth/login" -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"secret"}'`;
+      try {
+        await navigator.clipboard.writeText(curl);
+        alert('✅ Đã copy cURL mẫu vào clipboard!');
+      } catch (err) {
+        alert('Không copy được, đây là cURL:\n\n' + curl);
       }
-    },
-    "/api/chapters/{chapterId}/lessons": {
-      "get": {
-        "summary": "Lấy bài học theo chương",
-        "parameters": [
-          { "name": "chapterId", "in": "path", "required": true, "schema": { "type":"string" } }
-        ],
-        "responses": {
-          "200": { "description": "Danh sách bài học", "content": { "application/json": { "schema": { "type":"array", "items": { "$ref":"#/components/schemas/Lesson" } } } } }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "LoginRequest": {
-        "type":"object",
-        "required":["email","password"],
-        "properties": {
-          "email": { "type":"string", "format":"email" },
-          "password": { "type":"string", "format":"password" }
-        }
-      },
-      "AuthResponse": {
-        "type":"object",
-        "properties": {
-          "accessToken": { "type":"string" },
-          "refreshToken": { "type":"string" }
-        }
-      },
-      "User": {
-        "type":"object",
-        "properties": {
-          "id": { "type":"string" },
-          "name": { "type":"string" },
-          "email": { "type":"string", "format":"email" },
-          "role": { "type":"string" }
-        }
-      },
-      "Course": {
-        "type":"object",
-        "properties": {
-          "id": { "type":"string" },
-          "title": { "type":"string" },
-          "description": { "type":"string" },
-          "instructorId": { "type":"string" },
-          "price": { "type":"number" }
-        }
-      },
-      "CourseCreate": {
-        "type":"object",
-        "required":["title"],
-        "properties": {
-          "title": { "type":"string" },
-          "description": { "type":"string" },
-          "price": { "type":"number" }
-        }
-      },
-      "Chapter": {
-        "type":"object",
-        "properties": {
-          "id": { "type":"string" },
-          "title": { "type":"string" },
-          "order": { "type":"integer" }
-        }
-      },
-      "Lesson": {
-        "type":"object",
-        "properties": {
-          "id": { "type":"string" },
-          "title": { "type":"string" },
-          "type": { "type":"string", "description":"video | text | quiz" },
-          "duration": { "type":"integer", "description":"thời lượng giây" }
-        }
-      }
-    }
-  }
-}
+    });
   </script>
-
-    <!-- Redoc standalone (CDN) -->
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
-
-    <script>
-        // Lấy spec từ <script id="openapi-spec">
-        const specText = document.getElementById('openapi-spec').textContent.trim();
-        let spec;
-        try {
-            spec = JSON.parse(specText);
-        } catch (e) {
-            console.error('Invalid OpenAPI JSON', e);
-            spec = null;
-        }
-
-        // Render Redoc vào #redoc
-        if (spec) {
-            // Redoc.init(spec, options, element)
-            Redoc.init(spec, {
-                scrollYOffset: 64, // offset cho topbar
-                theme: { colors: { primary: { main: '#1f6feb' } } }
-            }, document.getElementById('redoc'));
-        }
-
-        // Nút: Tải openapi.json
-        document.getElementById('downloadSpec').addEventListener('click', () => {
-            const blob = new Blob([JSON.stringify(spec, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'openapi.json';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-        });
-
-        // Nút: Copy cURL mẫu login
-        document.getElementById('copyCurl').addEventListener('click', async () => {
-            const curl = `curl -X POST "https://api.your-domain.com/api/auth/login" -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"secret"}'`;
-            try {
-                await navigator.clipboard.writeText(curl);
-                alert('Đã copy cURL mẫu vào clipboard');
-            } catch (err) {
-                alert('Không copy được, đây là cURL:\n\n' + curl);
-            }
-        });
-    </script>
 </body>
-
 </html>
